@@ -63,3 +63,11 @@ npm install smashtest
 
 npx smashtest --test-server=[selenium_grid_test_url] --max-parallel=6
 ```
+
+## Clean up
+------------
+
+To remove the deployed resources :
+```shell
+terraform -chdir=terraform destroy
+```
