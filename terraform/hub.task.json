@@ -1,0 +1,36 @@
+[
+   {
+        "name": "${app_name}-hub", 
+        "image": "${image}", 
+        "portMappings": [
+            {
+            "hostPort": 4444,
+            "protocol": "tcp",
+            "containerPort": 4444
+            }
+        ], 
+        "essential": true, 
+        "entryPoint": [], 
+        "command": [],
+        "environment": [
+            {
+                "name": "GRID_MAX_SESSION",
+                "value": "16"
+            },
+            {
+                "name": "GRID_BROWSER_TIMEOUT",
+                "value": "150"
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-create-group": "true",
+                "awslogs-group": "${app_name}",
+                "awslogs-region": "${aws_region}",
+                "awslogs-stream-prefix": "hub"
+            }
+        }
+        
+    }
+]

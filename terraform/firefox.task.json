@@ -1,0 +1,55 @@
+[
+    {
+        "name": "${app_name}-firefox",
+        "image": "${image}",
+        "portMappings": [
+            {
+                "hostPort": 5555,
+                "protocol": "tcp",
+                "containerPort": 5555
+            }
+        ],
+        "essential": true,
+        "entryPoint": [],
+        "command": [
+            "/bin/bash",
+            "-c",
+            "PRIVATE=$(curl -s $ECS_CONTAINER_METADATA_URI_V4/task | jq -r '.Containers[0].Networks[0].IPv4Addresses[0]') ; export REMOTE_HOST=\"http://$PRIVATE:5555\" ; /opt/bin/entry_point.sh"
+        ],
+        "environment": [
+            {
+                "name": "HUB_HOST",
+                "value": "hub.${app_name}"
+            },
+            {
+                "name": "HUB_PORT",
+                "value": "4444"
+            },
+            {
+                "name": "NODE_MAX_SESSION",
+                "value": "6"
+            },
+            {
+                "name": "NODE_MAX_INSTANCES",
+                "value": "6"
+            },
+            {
+                "name": "SCREEN_HEIGHT",
+                "value": "1080"
+            },
+            {
+                "name": "SCREEN_WIDTH",
+                "value": "1920"
+            }
+        ],
+        "logConfiguration": {
+            "logDriver": "awslogs",
+            "options": {
+                "awslogs-create-group": "true",
+                "awslogs-group": "${app_name}",
+                "awslogs-region": "${aws_region}",
+                "awslogs-stream-prefix": "firefox"
+            }
+        }
+    }
+]

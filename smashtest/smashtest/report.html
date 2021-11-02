@@ -1,0 +1,2798 @@
+<html>
+    <head>
+        <title>Smashtest Report</title>
+
+        <link rel="apple-touch-icon" sizes="180x180" href="https://smashtest.io/favicons/apple-touch-icon.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="https://smashtest.io/favicons/favicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="https://smashtest.io/favicons/favicon-16x16.png">
+        <link rel="manifest" href="https://smashtest.io/favicons/site.webmanifest">
+        <link rel="mask-icon" href="https://smashtest.io/favicons/safari-pinned-tab.svg" color="#5bbad5">
+        <meta name="msapplication-TileColor" content="#da532c">
+        <meta name="theme-color" content="#ffffff">
+        <meta http-equiv="content-type" content="text/html; charset=utf-8">
+        <meta charset="utf-8">
+
+        <script src="https://unpkg.com/popper.js@1"></script>
+        <script src="https://unpkg.com/tippy.js@4"></script>
+
+        <script src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+        <style>
+            body {
+                background-color: rgb(30,30,30);
+                color: white;
+                font-family: Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+                margin: 0;
+                padding: 0;
+                overflow-x: hidden;
+            }
+
+            .main {
+                outline: 0;
+                height: 100%;
+            }
+
+            .header {
+                font-size: 16px;
+                margin: 0 40px 20px 6px;
+            }
+
+            .header .logo {
+                width: 20px;
+                margin: 0 8px 0 0;
+                position: relative;
+                top: 4px;
+            }
+
+            .tree-errors .header {
+                margin-bottom: 0;
+            }
+
+            .preview-pane .header {
+                margin-bottom: 10px;
+            }
+
+            .pane {
+                border: 0;
+                margin: 0;
+            }
+
+            .tree-pane {
+                width: 600px;
+                max-width: 50%;
+                left: 0;
+                padding: 10px 0 20px 8px;
+            }
+
+            .tree-pane.full {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .preview-pane {
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                right: 0;
+                height: 100%;
+                vertical-align: top;
+                overflow-y: auto;
+                overflow-x: hidden;
+                width: calc(100% - 630px);
+                min-width: calc(50% - 30px);
+                padding: 10px 14px;
+                background-color: rgb(45,45,45);
+            }
+
+            .preview-pane.hidden {
+                display: none;
+            }
+
+            .tree-header {
+                margin: 0 0 20px 0;
+            }
+
+            .tree-header-container {
+                margin: 0 0 0 10px;
+                font-size: 13px;
+            }
+
+            .tree-header-container .msg {
+                font-size: 13px;
+            }
+
+            .runner-status-msg {
+                color: #f5b70c;
+            }
+
+            .debug-mode {
+                margin-left: 30px;
+            }
+
+            .branch-list {
+                margin: 0 0 30px 0;
+            }
+
+            .branch-list:last-of-type {
+                margin-bottom: 0;
+            }
+
+            .branch {
+                margin-bottom: 30px;
+                margin-left: 8px;
+                position: relative;
+            }
+
+            .branch:last-of-type {
+                margin-bottom: 0;
+            }
+
+            .branch.active {
+                background-color: rgb(45,45,45);
+            }
+
+            .branch.hover {
+                background-color: rgb(45,45,45);
+            }
+
+            .branch-group {
+                margin-left: -8px;
+                margin-bottom: 45px;
+                position: relative;
+            }
+
+            .branch-group:last-of-type {
+                margin-bottom: 0;
+            }
+
+            .branch-group-indicator {
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 12px;
+                height: 100%;
+                min-width: 12px;
+                border: 0;
+                margin: 0;
+                padding: 0;
+                border-radius: 0 3px 3px 0;
+                background-color: rgb(70,70,70);
+            }
+
+            .branch-group-contents {
+                display: inline-block;
+                width: 100%;
+                border: 0;
+                margin: 0;
+                padding-left: 12px;
+                padding-right: 0;
+            }
+
+            .branch-indicator {
+                display: inline-block;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 10px;
+                height: 100%;
+                min-width: 10px;
+                border: 0;
+                margin: 0;
+                padding: 0;
+                border-radius: 3px;
+            }
+
+            .branch-indicator:hover {
+                cursor: pointer;
+            }
+
+            .branch-indicator.notrunyet {
+                background-color: rgb(128,128,128,.55);
+            }
+
+            .updates-live .branch-indicator.running {
+                background-color: #f5b70c;
+                animation: blinker 2s linear infinite;
+            }
+
+            .updates-paused .branch-indicator.running,
+            .updates-disconnected .branch-indicator.running {
+                background-color: #f5b70c;
+            }
+
+            @keyframes blinker {
+                50% {
+                    opacity: 0.3;
+                }
+            }
+
+            .branch-indicator.passed {
+                background-color: green;
+            }
+
+            .branch-indicator.failed {
+                background-color: red;
+            }
+
+            .branch-indicator.skipped {
+                background-color: rgb(0,200,200);
+            }
+
+            .branch-contents {
+                display: inline-block;
+                width: 100%;
+                border: 0;
+                margin: 0;
+                padding-left: 10px;
+                padding-right: 0;
+            }
+
+            .line {
+                font-size: 14px;
+                position: relative;
+                white-space: nowrap;
+                cursor: pointer;
+                padding-right: 30px;
+                overflow-x: auto;
+                overflow-y: hidden;
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .line::-webkit-scrollbar {
+                display: none;
+            }
+
+            .line.active {
+                background-color: rgb(45,45,45);
+            }
+
+            .line:hover {
+                background-color: rgb(45,45,45);
+            }
+
+            .line .line-container {
+                display: inline-block;
+            }
+
+            .line .content {
+                display: inline-block;
+            }
+
+            .line .active-indicator {
+                display: inline-block;
+                vertical-align: top;
+                color: transparent;
+                padding: 0 10px;
+                font-size: 12px;
+                position: relative;
+                top: 2px;
+            }
+
+            /*.line.active .active-indicator {
+                color: rgb(80,80,80);
+            }*/
+
+            .pill {
+                position: relative;
+                top: -2px;
+                color: white;
+                padding: 1px 3px;
+                border-radius: 5px;
+                font-size: 11px;
+                margin: 0 10px;
+            }
+
+            .pill.skipped {
+                background-color: rgb(0,200,200);
+            }
+
+            .pill.running {
+                background-color: #f5b70c;
+            }
+
+            .tooltip-text {
+                font-size: 12px;
+            }
+
+            .tooltip-text.keystrokes {
+                text-align: left;
+                padding: 5px;
+                white-space: pre;
+                line-height: 1.7;
+            }
+
+            .tooltip-text.branch-group-tooltip {
+                padding: 2px 6px;
+                display: inline-block;
+                text-align: right;
+            }
+
+            .tree-header-item {
+                margin-bottom: 5px;
+            }
+
+            .progress-bar {
+                height: 20px;
+                max-width: 560px;
+                margin: -6px 10px 15px 0;
+                padding-right: 20px;
+            }
+
+            .progress-bar .filled-bar {
+                background-color: #f5b70c;
+                color: white;
+                text-align: center;
+                height: 100%;
+                border-radius: 4px;
+                overflow-x: hidden;
+            }
+
+            .progress-bar .filled-bar-text {
+                position: relative;
+                top: 2px;
+                padding: 0 5px;
+            }
+
+            .msg {
+                color: rgb(100,100,100);
+                font-size: 12px;
+                font-weight: normal;
+            }
+
+            .notrunyet-item {
+                color: gray;
+            }
+
+            .line .notrunyet-item,
+            .line .textual.notrunyet-item,
+            .line .non-codeblock-step.notrunyet-item {
+                color: rgba(128,128,128,.55);
+                font-style: italic;
+            }
+
+            .skipped-step-item {
+                color: gray;
+            }
+
+            .updates-live .running-item {
+                color: #f5b70c;
+                animation: blinker 2s linear infinite;
+            }
+
+            .updates-paused .running-item,
+            .updates-disconnected .running-item,
+            .running-item-no-anim,
+            .orange-item {
+                color: #f5b70c;
+            }
+
+            .passed-item {
+                color: rgb(0,200,0);
+            }
+
+            .failed-item,
+            .line .failed-item {
+                color: red;
+            }
+
+            .skipped-item {
+                color: rgb(0,200,200);
+            }
+
+            .counts {
+                line-height: 16px;
+            }
+
+            .counts .count {
+                cursor: pointer;
+            }
+
+            .counts .count:hover {
+                filter: brightness(1.5);
+            }
+
+            .line-index {
+                color: rgb(100,100,100);
+                font-size: 11px;
+                display: inline-block;
+                vertical-align: top;
+                position: relative;
+                top: 2px;
+                margin: 0 8px;
+            }
+
+            .vertical-line-container {
+                border-left: 1px dashed rgb(90,90,90);
+                margin-left: 4px;
+                padding-left: 9px;
+                display: inline-block;
+            }
+
+            .line > .vertical-line-container {
+                position: relative;
+                top: 1px;
+                margin-bottom: 1px;
+            }
+
+            .collapse {
+                filter: invert(40%);
+            }
+
+            .collapse.plus {
+                position: relative;
+                top: 2px;
+                width: 13px;
+                height: 13px;
+                left: -2px;
+                margin-right: 1px;
+            }
+
+            .collapse.minus {
+                position: relative;
+                top: 1px;
+                width: 13px;
+                height: 12px;
+                left: -2px;
+                margin-right: 1px;
+            }
+
+            .collapse:hover {
+                filter: invert(60%);
+            }
+
+            .collapse-placeholder {
+                display: inline-block;
+                width: 14px;
+            }
+
+            .stacktrace {
+                padding: 10px 0 25px 30px;
+                font-size: 12px;
+                white-space: pre;
+            }
+
+            .tree-errors .stacktrace {
+                color: rgb(110,110,110);
+                overflow-x: auto;
+                margin-right: 10px;
+            }
+
+            .branch-error .stacktrace {
+                color: rgb(110,110,110);
+                overflow-x: auto;
+                margin-right: 30px;
+            }
+
+            .preview-pane .stacktrace {
+                color: rgb(110,110,110);
+                padding: 0 30px 15px;
+                overflow-x: auto;
+            }
+
+            .tree-errors .stacktrace,
+            .branch-error .stacktrace,
+            .preview-pane .stacktrace {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+
+            .tree-errors .stacktrace::-webkit-scrollbar,
+            .branch-error .stacktrace::-webkit-scrollbar,
+            .preview-pane .stacktrace::-webkit-scrollbar {
+                display: none;
+            }
+
+            .stacktrace:first-line,
+            .stacktrace .red {
+                color: red;
+            }
+
+            .line .stacktrace {
+                color: rgb(110,110,110);
+                padding: 5px 0 8px 30px;
+            }
+
+            .line .stacktrace:first-line {
+                color: rgb(110,110,110);
+            }
+
+            .logs {
+                padding: 5px 0 20px 20px;
+                color: rgb(110,110,110);
+                font-size: 12px;
+            }
+
+            .log-line {
+                margin-bottom: 7px;
+                white-space: pre;
+            }
+
+            .thumbs-up {
+                cursor: default;
+            }
+
+            .show-more {
+                display: block;
+                font-size: 14px;
+                padding: 5px 0;
+                cursor: pointer;
+                margin-top: 10px;
+                margin-left: -8px;
+            }
+
+            .show-more .label {
+                text-align: center;
+                max-width: 600px;
+                /*padding-left: 70px;*/
+                color: rgb(70,70,70);
+            }
+
+            .show-more img {
+                filter: invert(50%);
+                width: 13px;
+            }
+
+            .show-more:hover {
+                background-color: rgb(45,45,45);
+                color: gray;
+            }
+
+            .textual,
+            .non-codeblock-step {
+                color: rgb(140,140,140);
+            }
+
+            .preview-pane .close {
+                display: inline;
+                position: fixed;
+                top: 0;
+                right: 0;
+                color: rgb(110,110,110);
+                font-size: 30px;
+                cursor: pointer;
+                padding: 10px 24px 0 0;
+            }
+
+            .preview-pane .close:hover {
+                color: rgb(150,150,150);
+            }
+
+            .preview-pane .preview-name {
+                margin-bottom: 10px;
+            }
+
+            .preview-pane .preview-state .status {
+                margin-right: 20px;
+            }
+
+            .preview-pane .preview-state .location {
+                color: rgb(110,110,110);
+                font-size: 12px;
+            }
+
+            .preview-pane .preview-name .elapsed {
+                color: rgb(110,110,110);
+                font-size: 12px;
+            }
+
+            .preview-pane .preview-state {
+                margin-left: 20px;
+                font-size: 13px;
+            }
+
+            .preview-pane .msg {
+                color: rgb(110,110,110);
+                margin-top: 10px;
+                margin-left: 20px;
+                font-size: 13px;
+            }
+
+            .preview-pane .updates-paused-msg {
+                display: none;
+            }
+
+            .updates-paused .preview-pane .updates-paused-msg {
+                background-color: rgb(90,90,90);
+                border: 1px solid rgb(90,90,90);
+                padding: 1px 7px;
+                border-radius: 6px;
+                display: inline-block;
+                color: rgb(45,45,45);
+                font-size: 0.75em;
+            }
+
+            .preview-pane .preview-divider {
+                margin-bottom: 30px;
+            }
+
+            .preview-pane .preview-state .pill {
+                position: relative;
+                top: -1px;
+                cursor: pointer;
+            }
+
+            .preview-pane .commandline-hint {
+                margin-left: 20px;
+                font-size: 12px;
+                cursor: pointer;
+            }
+
+            .preview-pane .textual,
+            .preview-pane .non-codeblock-step {
+                font-style: normal;
+            }
+
+            .preview-pane .step-screenshots {
+                margin: 0 20px 20px 20px;
+            }
+
+            .preview-pane-msg {
+                color: rgb(90,90,90);
+                font-size: 18px;
+                padding-top: 70px;
+                text-align: center;
+            }
+
+            .preview-section {
+                margin: 0 0 30px 0;
+            }
+
+            .none-indicator {
+                color: rgb(110,110,110);
+                font-size: 13px;
+                margin-left: 20px;
+            }
+
+            .keystroke-command {
+                opacity: 0.4;
+            }
+
+            #notification {
+                visibility: hidden;
+                position: fixed;
+                text-align: center;
+                top: 30px;
+                left: 0;
+                right: 0;
+                z-index: 4;
+            }
+
+            #notification .notification-text {
+                min-width: 250px;
+                background-color: #333;
+                color: #fff;
+                border-radius: 2px;
+                padding: 16px;
+                font-size: 17px;
+                border-radius: 5px;
+            }
+
+            #notification .notification-text .copied-text {
+                color: rgb(180,180,180);
+            }
+
+            #notification.show {
+                visibility: visible;
+                -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+                animation: fadein 0.5s, fadeout 0.5s 2.5s;
+            }
+
+            @-webkit-keyframes fadein {
+                from {top: 0; opacity: 0;}
+                to {top: 30px; opacity: 1;}
+            }
+
+            @keyframes fadein {
+                from {top: 0; opacity: 0;}
+                to {top: 30px; opacity: 1;}
+            }
+
+            @-webkit-keyframes fadeout {
+                from {top: 30px; opacity: 1;}
+                to {top: 0; opacity: 0;}
+            }
+
+            @keyframes fadeout {
+                from {top: 30px; opacity: 1;}
+                to {top: 0; opacity: 0;}
+            }
+
+            .screenshot {
+                max-height: 80vh;
+                max-width: calc(100% - 16px);
+                border: 3px solid gray;
+                padding: 5px;
+                border-radius: 3px;
+            }
+
+            .screenshot:hover {
+                cursor: zoom-in;
+                border: 3px solid lightgray;
+            }
+
+            .screenshot-modal {
+                position: fixed;
+                width: 100%;
+                height: calc(100% - 100px);
+                z-index: 3;
+                padding: 50px 0;
+                left: 0;
+                top: 0;
+                background-color: rgb(0,0,0);
+                background-color: rgba(0,0,0,0.7);
+                overflow: auto;
+            }
+
+            .screenshot-modal .image {
+                margin: auto;
+                display: block;
+                width: 80%;
+
+                animation-name: zoom;
+                animation-duration: 0.1s;
+
+                cursor: zoom-out;
+            }
+
+            @keyframes zoom {
+                from {transform:scale(0)}
+                to {transform:scale(1)}
+            }
+
+            .screenshot-preview-container {
+                display: inline-block;
+            }
+
+            .screenshot-container {
+                position: relative;
+            }
+
+            .screenshot-toggle {
+                margin: 10px auto;
+                background-color: transparent;
+                color: rgb(150,150,150);
+                width: 150px;
+                text-align: center;
+                padding: 4px 0;
+                cursor: pointer;
+                border: 2px solid rgb(60,60,60);
+                border-radius: 3px;
+            }
+
+            .screenshot-toggle:hover:not(.active) {
+                background-color: rgb(60,60,60);
+            }
+
+            .screenshot-toggle .text {
+                font-size: 14px;
+            }
+
+            .screenshot-toggle.active {
+                background-color: rgb(80,80,80);
+                border-color: rgb(80,80,80);
+            }
+
+            .crosshairs-container {
+                pointer-events: none;
+                position: absolute;
+                top: 8px;
+                bottom: 8px;
+                left: 8px;
+                right: 8px;
+            }
+
+            .crosshairs {
+                position: absolute;
+                margin-top: -13px;
+                margin-left: -13px;
+                height: 26px;
+                width: 26px;
+                background-color: transparent;
+            }
+
+            .crosshairs .vertical {
+                position: absolute;
+                top: 0;
+                left: 50%;
+                height: 100%;
+                width: 0px;
+                border-left: 1px solid red;
+            }
+
+            .crosshairs .horizontal {
+                position: absolute;
+                top: 50%;
+                left: 0;
+                height: 0px;
+                width: 100%;
+                border-top: 1px solid red;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <div id="report-data-container">
+        </div>
+
+        <script type="text/babel">
+            // ***************************************
+            //  Tooltips
+            // ***************************************
+
+            let tippyOptions = {
+                placement: "right",
+                followCursor: true,
+                delay: 0,
+                animation: "fade",
+                arrow: true,
+                arrowType: "sharp"
+            };
+
+            function wrapTippyContent(content, classes) {
+                return `<span class='tooltip-text ${classes || ''}'>${content}</span>`;
+            }
+
+            function wrapTippyContentForKeystrokes(content) {
+                return `<div class='tooltip-text keystrokes'>${content.trim()}</div>`;
+            }
+
+            function attachPreviewPaneTooltips() {
+                tippyOptions.content = wrapTippyContentForKeystrokes(`
+up    = previous step
+down  = next step
+left  = collapse
+right = expand
+space = toggle before/after
+esc   = close preview
+h     = copy hash
+d     = copy debug command flag <span class="keystroke-command">--debug=hash</span>
+c     = copy text of branch
+                `);
+                let tippyOptionsKeystrokes = Object.assign({}, tippyOptions);
+                Object.assign(tippyOptionsKeystrokes, { followCursor: false, placement: "bottom", maxWidth: 1000 } );
+                tippy(".preview-pane .commandline-hint", tippyOptionsKeystrokes);
+            }
+
+            function attachTreePaneTooltips() {
+                tippyOptions.content = wrapTippyContent("Currently running branch");
+                tippy(".branch-indicator.running", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch passed");
+                tippy(".branch-indicator.passed", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch failed");
+                tippy(".branch-indicator.failed", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch skipped");
+                tippy(".branch-indicator.skipped", tippyOptions);
+
+                tippyOptions.content = wrapTippyContent("Branch not run yet");
+                tippy(".branch-indicator.notrunyet", tippyOptions);
+
+                let elems = document.querySelectorAll(".branch-group-indicator");
+                elems.forEach(elem => {
+                    let tippyOptionsBranchGroup = Object.assign({}, tippyOptions);
+                    Object.assign(tippyOptionsBranchGroup, { maxWidth: 10000 } );
+                    tippyOptionsBranchGroup.content = wrapTippyContent(elem.getAttribute("data-tooltip"), "branch-group-tooltip");
+                    tippy(elem, tippyOptionsBranchGroup);
+                });
+            }
+
+            // ***************************************
+            //  Report data
+            // ***************************************
+
+            /**
+             * Called when a new report data file is loaded
+             */
+            function onReportData(data) {
+                app.onReportData(data);
+            }
+
+            /**
+             * @return {String} str, but with &#96; and &amp; unescaped to ` and &
+             */
+            function unescapeBackticks(str) {
+                return str
+                    .replace(/&#96;/g, "`")
+                    .replace(/&amp;/g, "&");
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual, false otherwise
+             */
+            function isTextual(stepNode) {
+                return stepNode.isTextualStep;
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual with a - in front, false otherwise
+             */
+            function isFrontTextual(stepNode) {
+                return stepNode.frontModifiers && stepNode.frontModifiers.find(mod => mod == '-');
+            }
+
+            /**
+             * @return {Boolean} True if the given step node is textual with a - in back, false otherwise
+             */
+            function isBackTextual(stepNode) {
+                return stepNode.backModifiers && stepNode.backModifiers.find(mod => mod == '-');
+            }
+
+            /**
+             * @return {Boolean} True if the step doesn't have a code block
+             */
+            function isNonCodeBlock(step, stepNodeIndex) {
+                let stepNode = stepNodeIndex[step.id];
+                if(!stepNode) {
+                    return false;
+                }
+
+                let functionDeclarationNode = step.fid ? stepNodeIndex[step.fid] : null;
+
+                return !stepNode.hasCodeBlock && (functionDeclarationNode ? !functionDeclarationNode.hasCodeBlock : true);
+            }
+
+            /**
+             * @return {Promise} Promise that resolves to true if the image at the given url exists, false otherwise
+             */
+            function imageExists(url) {
+                return new Promise((resolve, reject) => {
+                    let img = new Image();
+                    img.onload = () => {
+                        resolve(img.height != 0);
+                    };
+                    img.onerror = () => {
+                        resolve(false);
+                    };
+                    img.src = url;
+                });
+            }
+
+            /**
+             * @return {String} The state of the given step or branch
+             */
+            function getRunState(o) {
+                if(o.isRunning) {
+                    return "running";
+                }
+                else if(o.isFailed) {
+                    return "failed";
+                }
+                else if(o.isPassed) {
+                    return "passed";
+                }
+                else if(o.isSkipped) {
+                    return "skipped";
+                }
+                else {
+                    return "notrunyet";
+                }
+            }
+
+            // ***************************************
+            //  React components
+            // ***************************************
+
+            let app = null;
+
+            const BRANCHES_LIMIT = 5;                // default number of branches to show in a branch list
+            const MORE_BRANCHES = 5;                 // number of additional branches to show when more button clicked
+            const GROUPS_LIMIT = 20;                 // default number of groups to show in a grouped branch list
+            const MORE_GROUPS = 10;                  // number of additional groups to show when more button clicked in a grouped branch list
+            const BRANCHES_IN_BRANCH_GRP_LIMIT = 1;  // default number of branches to show in a group within a grouped branch list
+            const MORE_BRANCHES_IN_BRANCH_GRP = 5;   // number of additional branches to show when more button clicked in a group within a grouped branch list
+
+            let previewSSRender = null;              // holds the last screenshot render (used to prevent flicker)
+
+            class App extends React.Component {
+                constructor() {
+                    super();
+
+                    // This app
+                    app = this;                     // global var referencing this app
+                    this.me = null;                 // app's dom element
+
+                    // State
+                    this.state = {
+                        tree: null,                 // Tree object from report data/snapshots
+                        runner: null,               // Runner object from report data
+                        reportTime: null,           // reportTime Date from report data (when report data was generated)
+                        reportDomain: null,         // reportDomain from report data (what domain:port to connect websockets to)
+                        previewedItem: null,        // the component (Branch or Line) currently being previewed, null if none
+                        limitMap: {}                // maps keys representing branch groups to how many branches to display for that group (aka "limit")
+                    };
+
+                    this.socket = null;             // websocket to report server
+                    this.socketOpen = false;        // true if websocket is open
+
+                    this.newDataAvailable = false;  // true if new report data is available on disk but hasn't been loaded yet (because we're paused on a preview)
+                    this.branchSnapshots = [];      // Array containing branches that have been updated server-side
+                                                    // (but the updates cannot be applied to state yet because we're paused on a preview)
+
+                    this.triggers = {
+                        onSpacebarDown: null,       // function that's called when the spacebar goes down
+                        onSpacebarUp: null,         // function that's called when the spacebar goes up
+                        onEsc: null                 // function that's called when the esc key is pressed, returns false if no further esc-handling is to be done, true otherwise
+                    }
+
+                    this.reloadReportData();
+
+                    // Bindings
+                    this.reloadReportData = this.reloadReportData.bind(this);
+                    this.onReportData = this.onReportData.bind(this);
+                    this.openConnection = this.openConnection.bind(this);
+                    this.copyBranchSnapshots = this.copyBranchSnapshots.bind(this);
+                    this.stepNode = this.stepNode.bind(this);
+                    this.getModifier = this.getModifier.bind(this);
+                    this.setPreview = this.setPreview.bind(this);
+                    this.getLimit = this.getLimit.bind(this);
+                    this.setLimit = this.setLimit.bind(this);
+                    this.handleKeyDown = this.handleKeyDown.bind(this);
+                    this.handleKeyUp = this.handleKeyUp.bind(this);
+                    this.isKeyModifierActive = this.isKeyModifierActive.bind(this);
+                    this.showNotification = this.showNotification.bind(this);
+                    this.copyToClipboard = this.copyToClipboard.bind(this);
+                    this.focusMe = this.focusMe.bind(this);
+                }
+
+                componentDidMount() {
+                    attachTreePaneTooltips();
+                    this.reloadReportData();
+                    this.focusMe(); // focus on myself, so I can start getting keyboard commands
+                }
+
+                /**
+                 * Reloads report data by creating a new script tag which loads the script containing the data
+                 */
+                reloadReportData() {
+                    let container = document.getElementById('report-data-container');
+                    let scriptElem = document.getElementById('report-data-script');
+                    if(scriptElem) {
+                        container.removeChild(scriptElem);
+                    }
+
+                    scriptElem = document.createElement('script');
+                    scriptElem.id = 'report-data-script';
+                    scriptElem.setAttribute('async', '');
+                    scriptElem.setAttribute('src', 'report-data.js');
+
+                    container.appendChild(scriptElem);
+                }
+
+                /**
+                 * Called when a new report data file is loaded
+                 */
+                onReportData(data) {
+                    data = JSON.parse(unescapeBackticks(data));
+                    this.branchSnapshots = [];
+                    data.limitMap = {};
+                    this.setState(data);
+                    this.openConnection(data.reportDomain);
+                }
+
+                /**
+                 * Opens websocket that will receive state updates
+                 * @param {String} [reportDomain] - domain:port of report server
+                 */
+                openConnection(reportDomain) {
+                    if(this.socket || !reportDomain) { // socket is already open or there's no report domain (due to lack of report server)
+                        return;
+                    }
+
+                    const WS_RETRY_FREQ = 5000; // 5 secs
+                    this.socket = new WebSocket(`ws://${reportDomain}`);
+
+                    this.socket.addEventListener('open', (event) => {
+                        this.socketOpen = true;
+
+                        let origin = '';
+                        if(window.location.href.match(/^file:\/\//)) { // local html file
+                            origin = window.location.href.replace(/file:\/\//, '');
+                        }
+                        else { // at site with a domain:port
+                            origin = window.location.host + (window.location.port ? `:${window.location.port}` : ``);
+                        }
+
+                        this.socket.send(`{ "origin": "${origin}" }`);
+                    });
+
+                    this.socket.addEventListener('message', (event) => {
+                        let message = JSON.parse(event.data);
+                        if(message.dataUpdate) { // update report data from file
+                            if(this.state.previewedItem) { // updates paused
+                                this.newDataAvailable = true;
+                            }
+                            else { // updates not paused
+                                this.reloadReportData();
+                            }
+                        }
+                        else if(message.snapshot) { // this is a snapshot update
+                            // Update counts
+                            this.state.tree.counts = message.tree.counts;
+                            this.state.tree.elapsed = message.tree.elapsed;
+                            this.state.tree.timeStarted = message.tree.timeStarted;
+                            this.state.tree.timeEnded = message.tree.timeEnded;
+
+                            // Update branches
+                            if(this.state.previewedItem) { // updates currently paused
+                                this.copyBranchSnapshots(this.branchSnapshots, message.tree.branches);
+
+                                // Cap the size of branchSnapshots
+                                const BRANCH_SNAPSHOT_MAX = 500;
+                                if(this.branchSnapshots.length > BRANCH_SNAPSHOT_MAX) {
+                                    this.branchSnapshots = this.branchSnapshots.slice(0, BRANCH_SNAPSHOT_MAX);
+                                }
+                            }
+                            else { // updates not paused
+                                this.copyBranchSnapshots(this.state.tree.branches, message.tree.branches);
+                            }
+
+                            this.setState({
+                                tree: this.state.tree,
+                                runner: message.runner
+                            });
+                        }
+                    });
+
+                    this.socket.addEventListener('close', (event) => {
+                        if(this.socketOpen) {
+                            this.setState(this.state); // if socket was open before, re-render app post-socket closure
+                        }
+
+                        this.socket = null;
+                        this.socketOpen = false;
+
+                        // Retry connecting after a few secs
+                        setTimeout(() => this.openConnection(this.state.reportDomain), WS_RETRY_FREQ);
+                    });
+                }
+
+                /**
+                 * Copies branch snapshots from sourceBranches to destination branches, overwriting existing ones if their hashes match
+                 * Clears isRunning on all of destinationBranches, then applies sourceBranches
+                 */
+                copyBranchSnapshots(destinationBranches, sourceBranches) {
+                    // Remove all running branches from destinationBranches (to prevent interference from running branches from the last report data reload)
+                    destinationBranches.forEach(b => {
+                        if(b.isRunning) {
+                            delete b.isRunning;
+                            b.steps.forEach(s => delete s.isRunning);
+                        }
+                    });
+
+                    // Replace each destination branch with the corresponding source branch (or just copy in the source branch if it's new)
+                    sourceBranches.forEach(sourceBranch => {
+                        let found = false;
+                        for(let i = 0; i < destinationBranches.length; i++) {
+                            if(destinationBranches[i].hash == sourceBranch.hash) {
+                                found = true;
+                                destinationBranches[i] = sourceBranch;
+                                break;
+                            }
+                        }
+                        if(!found) {
+                            destinationBranches.push(sourceBranch);
+                        }
+                    });
+                }
+
+                /**
+                 * Returns the step node of the given step
+                 */
+                stepNode(step) {
+                    return this.state.tree.stepNodeIndex[step.id];
+                }
+
+                /**
+                 * Gets a modifier value for a step
+                 * @param {Step} step - A step
+                 * @param {String} modifierName - The name of a modifier (key in StepNode)
+                 * @return {Boolean} True if the given modifier is set on either step's StepNode or on its corresponding function declaration's StepNode (if step is a function call), false if the modifier isn't set or no step node was found
+                 */
+                getModifier(step, modifierName) {
+                    let stepNode = this.state.tree.stepNodeIndex[step.id];
+                    if(!stepNode) {
+                        return false
+                    }
+                    else if(stepNode[modifierName]) {
+                        return true;
+                    }
+                    else if(step.hasOwnProperty('fid') && this.state.tree.stepNodeIndex[step.fid] && this.state.tree.stepNodeIndex[step.fid][modifierName]) {
+                        return true;
+                    }
+
+                    return false;
+                }
+
+                /**
+                 * Sets the preview in the preview pane to the given step or branch
+                 * @param {Element} previewedItem - Sets the previewed item to this element (which represents a step or a branch). If that same element is already being previewed, the previewed item will be cleared. Clears the previewed item if null.
+                 * @param {Boolean} [force] - If true, set the previewed item to previewedItem regardless of what the current previewed item is
+                 * @param {Boolean} [toggleCollapse] - If true, toggles collapse on previewed item
+                 */
+                setPreview(previewedItem, force, toggleCollapse) {
+                    let noPreview = !previewedItem;
+
+                    if(force) {
+                        this.state.previewedItem = previewedItem;
+                    }
+                    else if(this.state.previewedItem === previewedItem) { // toggle off
+                        noPreview = true;
+                        this.state.previewedItem = null;
+                    }
+                    else { // toggle on
+                        this.state.previewedItem = previewedItem;
+                    }
+
+                    this.setState({ previewedItem: this.state.previewedItem });
+
+                    if(toggleCollapse) {
+                        previewedItem.props.step.collapse = !previewedItem.props.step.collapse;
+                        this.setState({ tree: this.state.tree });
+                    }
+
+                    if(noPreview) { // we're resuming updates
+                        // If new report data became available during the pause, load it
+                        if(this.newDataAvailable) {
+                            this.newDataAvailable = false;
+                            this.reloadReportData();
+                        }
+                        else {
+                            // Dump into this.state.tree.branches the branch snapshots that have been piling up during the pause
+                            if(this.branchSnapshots.length > 0) {
+                                this.copyBranchSnapshots(this.state.tree.branches, this.branchSnapshots);
+                                this.branchSnapshots = [];
+                                this.setState({ tree: this.state.tree });
+                            }
+                        }
+                    }
+                }
+
+                /**
+                 * Gets the limit for the given key (limit = number of branches to display for a particular group of branches)
+                 * @param {String} key - The key representing the group of branches
+                 * @return {Number} The limit for the given key
+                 */
+                getLimit(key) {
+                    return this.state.limitMap[key];
+                }
+
+                /**
+                 * Sets the limit of the given key in the limit map (limit = number of branches to display for a particular group of branches)
+                 * @param {String} key - The key representing the group of branches
+                 * @param {Number} limit - What to set the limit to
+                 */
+                setLimit(key, limit) {
+                    this.state.limitMap[key] = limit;
+                    this.setState({ limitMap: this.state.limitMap });
+                }
+
+                /**
+                 * Handles a key down event
+                 */
+                handleKeyDown(event) {
+                    if(this.isKeyModifierActive(event)) {
+                        return;
+                    }
+
+                    let charCode = event.keyCode || event.which;
+                    let charStr = String.fromCharCode(charCode);
+
+                    if(charCode == '37') { // left arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        if(activeIndex != -1) {
+                            let collapseIcon = lines[activeIndex].querySelector(".collapse.minus");
+                            if(collapseIcon) {
+                                activate(collapseIcon);
+                            }
+                        }
+                    }
+                    else if(charCode == '39') { // right arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        if(activeIndex != -1) {
+                            let collapseIcon = lines[activeIndex].querySelector(".collapse.plus");
+                            if(collapseIcon) {
+                                activate(collapseIcon);
+                            }
+                        }
+                    }
+                    else if(charCode == '38') { // up arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        let prevIndex = activeIndex - 1;
+                        if(activeIndex != -1 && prevIndex >= 0) {
+                            activate(lines[prevIndex]);
+                            scrollIntoView(lines[prevIndex]);
+                        }
+                        event.preventDefault();
+                    }
+                    else if(charCode == '40') { // down arrow
+                        let [lines, activeIndex] = getActiveIndex();
+                        let nextIndex = activeIndex + 1;
+                        if(activeIndex != -1 && nextIndex < lines.length) {
+                            activate(lines[nextIndex]);
+                            scrollIntoView(lines[nextIndex]);
+                        }
+                        event.preventDefault();
+                    }
+                    else if(charCode == '32') { // spacebar
+                        if(this.triggers.onSpacebarDown) {
+                            this.triggers.onSpacebarDown();
+                        }
+                        event.preventDefault();
+                    }
+                    else if(charStr == 'H') {
+                        if(this.state.previewedItem) {
+                            let hash = this.state.previewedItem.props.branch.hash;
+                            this.copyToClipboard(hash);
+                            this.showNotification(`Copied <span class="copied-text">${hash}</span> to clipboard`);
+                        }
+                    }
+                    else if(charStr == 'D') {
+                        if(this.state.previewedItem) {
+                            let hash = this.state.previewedItem.props.branch.hash;
+                            let command = `--debug=${hash}`;
+                            this.copyToClipboard(command);
+                            this.showNotification(`Copied  <span class="copied-text">${command}</span> to clipboard`);
+                        }
+                    }
+                    else if(charStr == 'C') {
+                        if(this.state.previewedItem) {
+                            let branch = this.state.previewedItem.me.closest('.branch');
+                            let visibleLines = branch.querySelectorAll('.line .step-text');
+                            let text = '';
+
+                            visibleLines.forEach(line => text +=
+                                (line.closest('.content').classList.contains('front-textual') ? '- ' : '') +
+                                line.innerText +
+                                (line.closest('.content').classList.contains('back-textual') ? ' -' : '') +
+                                '\n');
+
+                            this.copyToClipboard(text);
+                            this.showNotification(`Copied text of branch to clipboard`);
+                        }
+                    }
+                    else if(event.key == 'Escape') { // esc key
+                        let defaultAllowed = true;
+                        if(this.triggers.onEsc) {
+                            defaultAllowed = this.triggers.onEsc();
+                        }
+
+                        if(defaultAllowed) {
+                            this.setPreview(null);
+                        }
+                    }
+
+                    function getActiveIndex() {
+                        let lines = document.querySelectorAll(".line");
+                        for(let i = 0; i < lines.length; i++) {
+                            let line = lines[i];
+                            if(line.classList.contains("active")) {
+                                return [lines, i];
+                            }
+                        }
+
+                        return [lines, -1];
+                    }
+
+                    function activate(elem) {
+                        let e = document.createEvent("MouseEvents");
+                        e.initEvent("click", true, true);
+                        elem.dispatchEvent(e);
+                    }
+                }
+
+                /**
+                 * Handles a key up event
+                 */
+                handleKeyUp(event) {
+                    if(this.isKeyModifierActive(event)) {
+                        return;
+                    }
+
+                    let charCode = event.keyCode || event.which;
+
+                    if(charCode == '32') { // spacebar
+                        if(this.triggers.onSpacebarUp) {
+                            this.triggers.onSpacebarUp();
+                        }
+                    }
+                }
+
+                /**
+                 * Returns true if a keyboard modifier, such as Shift or Control, is currently active
+                 */
+                isKeyModifierActive(event) {
+                    return event.getModifierState("Shift") ||
+                        event.getModifierState("Alt") ||
+                        event.getModifierState("Control") ||
+                        event.getModifierState("Meta") ||
+                        event.getModifierState("Fn") ||
+                        event.getModifierState("OS");
+                }
+
+                /**
+                 * Shows a temporary notification at the top of the page
+                 */
+                showNotification(msg) {
+                    const NOTIFICATION_TIMEOUT = 3000; // ms
+                    let notification = document.getElementById("notification");
+                    let notificationText = notification.querySelector(".notification-text");
+                    notificationText.innerHTML = msg;
+                    notification.classList.add("show");
+                    this.focusMe();
+                    setTimeout(() => notification.classList.remove("show"), NOTIFICATION_TIMEOUT);
+                }
+
+                /**
+                 * Copies the given text to the clipboard
+                 */
+                copyToClipboard(text) {
+                    if(document.queryCommandSupported && document.queryCommandSupported("copy")) {
+                        let textarea = document.createElement("textarea");
+                        textarea.textContent = text;
+                        textarea.style.position = "fixed";
+                        document.body.appendChild(textarea);
+                        textarea.select();
+                        try {
+                            return document.execCommand("copy");
+                        }
+                        catch(e) {
+                        }
+                        finally {
+                            document.body.removeChild(textarea);
+                        }
+                    }
+                }
+
+                /**
+                 * Brings focus to the app
+                 */
+                focusMe() {
+                    if(this.me) {
+                        this.me.focus({ preventScroll: true });
+                    }
+                }
+
+                render() {
+                    let className = "main ";
+                    if(!this.socket || this.socket.readyState != this.socket.OPEN) {
+                        className += "updates-disconnected ";
+                    }
+                    else if(this.state.previewedItem) {
+                        className += "updates-paused ";
+                    }
+                    else {
+                        className += "updates-live ";
+                    }
+
+                    return (
+                        <div className={className} tabIndex="0" onKeyDown={this.handleKeyDown} onKeyUp={this.handleKeyUp} ref={elem => this.me = elem}>
+                            <div id="notification"><span className="notification-text"></span></div>
+                            <TreePane
+                                data={this.state}
+                                setPreview={this.setPreview}
+                                getModifier={this.getModifier}
+                                getLimit={this.getLimit}
+                                setLimit={this.setLimit}
+                            />
+                            {
+                                this.state.tree ?
+                                <PreviewPane
+                                    previewedItem={this.state.previewedItem}
+                                    setPreview={this.setPreview}
+                                    stepNodeIndex={this.state.tree.stepNodeIndex}
+                                    triggers={this.triggers}
+                                /> : ''
+                            }
+                        </div>
+                    );
+                }
+            }
+
+            class TreePane extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    if(!this.props.data.tree) {
+                        return "";
+                    }
+
+                    let className = `pane tree-pane ${!this.props.data.previewedItem ? `full` : ``}`;
+
+                    return (
+                        <div className={className}>
+                            <TreeHeader data={this.props.data}/>
+                            <TreeErrors data={this.props.data}/>
+                            <BranchTable
+                                branches={this.props.data.tree.branches}
+                                stepNodeIndex={this.props.data.tree.stepNodeIndex}
+                                counts={this.props.data.tree.counts}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.data.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+                        </div>
+                    );
+                }
+            }
+
+            class TreeHeader extends React.Component {
+                constructor() {
+                    super();
+                    this.scrollToBranchList = this.scrollToBranchList.bind(this);
+                }
+
+                scrollToBranchList(id) {
+                    let elem = document.getElementById(id);
+                    if(elem) {
+                        elem.scrollIntoView();
+                    }
+                }
+
+                render() {
+                    let elapsedText = "";
+                    let elapsed = this.props.data.tree.elapsed || -1;
+                    if(elapsed != -1) {
+                        elapsedText = `(${formatElapsed(elapsed)})`;
+                    }
+
+                    let anyFailed = false;
+                    for(let i = 0; i < this.props.data.tree.branches.length; i++) {
+                        let branch = this.props.data.tree.branches[i];
+                        if(branch.isFailed) {
+                            anyFailed = true;
+                            break;
+                        }
+                    }
+
+                    let runnerStatusElem = null;
+                    if(this.props.data.runner.isStopped) {
+                        runnerStatusElem = <span>Run stopped {elapsedText}</span>
+                    }
+                    else if(this.props.data.runner.isComplete) {
+                        runnerStatusElem = <span>Run completed {elapsedText}</span>;
+                    }
+                    else { // currently running
+                        runnerStatusElem = <span className="running-item">Currently running</span>;
+                    }
+
+                    let counts = this.props.data.tree.counts;
+                    let totalNotRunYet = counts.totalToRun - counts.complete - counts.running;
+
+                    return (
+                        <div className="tree-header">
+                            <div className="header">
+                                <img className="logo" src="https://smashtest.io/logo.svg"/>
+                                Smashtest Report
+                            </div>
+                            <div className="tree-header-container">
+                                {
+                                    !this.props.data.runner.isComplete && !this.props.data.runner.isStopped ?
+                                    <ProgressBar decimal={counts.totalStepsComplete / counts.totalSteps} paused={this.props.data.previewedItem}/> :
+                                    ""
+                                }
+                                <div className="runner-status-msg tree-header-item">
+                                    {runnerStatusElem}
+                                    <span className="debug-mode">
+                                        {this.props.data.tree.isDebug ? "In DEBUG mode (~)" : ""}
+                                    </span>
+                                </div>
+                                <div className="counts tree-header-item">
+                                    {
+                                        counts.running > 0 ?
+                                        <span><span className="running-count count running-item" onClick={() => this.scrollToBranchList("branch-list-running")}> {counts.running} running</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        counts.passed > 0 ?
+                                        <span><span className="passed-count count passed-item" onClick={() => this.scrollToBranchList("branch-list-passed")}> {counts.passed} passed</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        counts.failed > 0 ?
+                                        <span><span className="failed-count count failed-item" onClick={() => this.scrollToBranchList("branch-list-failed")}> {counts.failed} failed</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        counts.skipped > 0 ?
+                                        <span><span className="skipped-count count skipped-item" onClick={() => this.scrollToBranchList("branch-list-skipped")}> {counts.skipped} skipped</span> | </span> :
+                                        ""
+                                    }
+                                    {
+                                        totalNotRunYet > 0 ?
+                                        <span><span className="notrunyet-count count notrunyet-item" onClick={() => this.scrollToBranchList("branch-list-notrunyet")}> {totalNotRunYet} not run yet</span> | </span> :
+                                        ""
+                                    }
+                                    <span className="total-count notrunyet-item"> {counts.total} total branches</span>
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            class ProgressBar extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let decimal = this.props.decimal >= 0.01 ? this.props.decimal : 0.01;
+
+                    let percentageText = (Math.floor(decimal * 100)) + "%";
+                    let filledBarClass = `filled-bar ${this.props.paused ? "paused" : ""}`;
+                    return (
+                        <div className="progress-bar tree-header-item">
+                            <div className={filledBarClass} style={ {width: percentageText} } ref={(elem) => {this.filledBar = elem} }>
+                                <div className="filled-bar-text" ref={(elem) => {this.filledBarText = elem}}>
+                                    {this.props.decimal > 0.05 ? percentageText : ""}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            class TreeErrors extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let errors =
+                        (this.props.data.tree.beforeEverything || [])
+                        .concat(this.props.data.tree.afterEverything || [])
+                        .filter(hook => hook.error)
+                        .map(hook => {
+                            return (
+                                <div className="stacktrace" key={hook.id} dangerouslySetInnerHTML={{__html: formatStackTrace(hook.error)}}></div>
+                            );
+                        });
+
+                    if(errors.length > 0) {
+                        return (
+                            <div className="tree-errors">
+                                <div className="header failed-item">Hook errors</div>
+                                {errors}
+                            </div>
+                        );
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            }
+
+            class BranchTable extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let branchesRunning = this.props.branches.filter(branch => branch.isRunning);
+                    let branchesFailed = this.props.branches.filter(branch => branch.isFailed);
+                    let branchesPassed = this.props.branches.filter(branch => branch.isPassed);
+                    let branchesSkipped = this.props.branches.filter(branch => branch.isSkipped);
+                    let branchesNotRunYet = this.props.branches.filter(branch => !branch.isRunning && !branch.isFailed && !branch.isPassed && !branch.isSkipped);
+
+                    // Failed branches
+                    let failedBranchMapping = {}; // contains mapping of a string that uniquely identifies a branch group (group key) to an array of branches in that group
+                    branchesFailed.forEach(b => {
+                        let lastFailedStep = null;
+                        for(let i = b.steps.length - 1; i >= 0; i--) {
+                            if(b.steps[i].isFailed) {
+                                lastFailedStep = b.steps[i];
+                                break;
+                            }
+                        }
+                        if(!lastFailedStep) {
+                            lastFailedStep = b.steps[0];
+                        }
+
+                        let lastFailedStepNode = this.props.stepNodeIndex[lastFailedStep.id];
+                        if(lastFailedStepNode) {
+                            let groupKey = lastFailedStepNode.text;
+
+                            let lastFailedFunctionDeclaration = lastFailedStep.fid ? this.props.stepNodeIndex[lastFailedStep.fid] : null;
+                            if(lastFailedFunctionDeclaration) {
+                                groupKey += `<br>(function at ${lastFailedFunctionDeclaration.filename}:${lastFailedFunctionDeclaration.lineNumber})`;
+                            }
+
+                            if(!failedBranchMapping.hasOwnProperty(groupKey)) {
+                                failedBranchMapping[groupKey] = [];
+                            }
+
+                            failedBranchMapping[groupKey].push(b);
+                        }
+                    });
+
+                    return (
+                        <div className="branch-table">
+                            <BranchList
+                                idName="branch-list-running"
+                                key="branch-list-running"
+                                header="Branches currently running"
+                                moreLabel="More currently running branches"
+                                branches={branchesRunning}
+                                lengthText={this.props.counts.running}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+
+                            <GroupedBranchList
+                                idName="branch-list-failed"
+                                key="branch-list-failed"
+                                header="Failed branches"
+                                moreLabel="More failed branches"
+                                mapping={failedBranchMapping}
+                                lengthText={this.props.counts.failed}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+
+                            <BranchList
+                                idName="branch-list-passed"
+                                key="branch-list-passed"
+                                header="Passed branches"
+                                moreLabel="More passed branches"
+                                branches={branchesPassed}
+                                lengthText={this.props.counts.passed}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+
+                            <BranchList
+                                idName="branch-list-skipped"
+                                key="branch-list-skipped"
+                                header="Skipped branches"
+                                moreLabel="More skipped branches"
+                                branches={branchesSkipped}
+                                lengthText={this.props.counts.skipped}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+
+                            <BranchList
+                                idName="branch-list-notrunyet"
+                                key="branch-list-notrunyet"
+                                header="Branches not run yet"
+                                moreLabel="More branches not run yet"
+                                branches={branchesNotRunYet}
+                                lengthText={this.props.counts.total - this.props.counts.complete}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                setPreview={this.props.setPreview}
+                                previewedItem={this.props.previewedItem}
+                                getModifier={this.props.getModifier}
+                                getLimit={this.props.getLimit}
+                                setLimit={this.props.setLimit}
+                            />
+                        </div>
+                    );
+                }
+            }
+
+            class BranchList extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    if(this.props.branches.length == 0) {
+                        return "";
+                    }
+                    else {
+                        let limit = this.props.getLimit(this.props.idName) || BRANCHES_LIMIT;
+                        let children = this.props.branches.filter((branch, index) => index < limit);
+                        let numNotShown = this.props.branches.length - limit;
+
+                        return (
+                            <div className="branch-list" id={this.props.idName}>
+                                <div className="header">{this.props.header} ({this.props.lengthText})</div>
+                                {
+                                    children.map((branch, index) => (
+                                        <Branch
+                                            key={branch.hash + " " + getRunState(branch) + " " + index}
+                                            branch={branch}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                        />
+                                    ))
+                                }
+                                {
+                                    numNotShown > 0 ?
+                                    <ShowMore
+                                        moreLabel={`${this.props.moreLabel} (${numNotShown})`}
+                                        limitKey={this.props.idName}
+                                        setLimit={this.props.setLimit}
+                                        nextLimit={limit + MORE_BRANCHES}
+                                    /> :
+                                    ''
+                                }
+                            </div>
+                        );
+                    }
+                }
+            }
+
+            class GroupedBranchList extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let keys = Object.keys(this.props.mapping);
+
+                    if(keys.length == 0) {
+                        return "";
+                    }
+                    else {
+                        let limit = this.props.getLimit(this.props.idName) || GROUPS_LIMIT;
+                        let children = keys.filter((groupKey, index) => index < limit);
+                        let numNotShown = keys.length - limit;
+
+                        return (
+                            <div className="branch-list" id={this.props.idName}>
+                                <div className="header">{this.props.header} ({this.props.lengthText})</div>
+                                {
+                                    children.map(groupKey => (
+                                        <BranchGroup
+                                            groupKey={groupKey}
+                                            key={groupKey}
+                                            branches={this.props.mapping[groupKey]}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                            getLimit={this.props.getLimit}
+                                            setLimit={this.props.setLimit}
+                                        />
+                                    ))
+                                }
+                                {
+                                    numNotShown > 0 ?
+                                    <ShowMore
+                                        moreLabel={`${this.props.moreLabel} (${numNotShown})`}
+                                        limitKey={this.props.idName}
+                                        setLimit={this.props.setLimit}
+                                        nextLimit={limit + MORE_GROUPS}
+                                    /> :
+                                    ''
+                                }
+                            </div>
+                        );
+                    }
+                }
+            }
+
+            class BranchGroup extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let tooltip = `Branches that failed on<br><i>${this.props.groupKey}</i>`;
+
+                    let limit = this.props.getLimit(this.props.groupKey) || BRANCHES_IN_BRANCH_GRP_LIMIT;
+                    let children = this.props.branches.filter((branch, index) => index < limit);
+                    let numNotShown = this.props.branches.length - limit;
+
+                    return (
+                        <div className="branch-group">
+                            <div className="branch-group-indicator" data-tooltip={tooltip}>
+                            </div>
+                            <div className="branch-group-contents">
+                                {
+                                    children.map(branch => (
+                                        <Branch
+                                            key={branch.hash}
+                                            branch={branch}
+                                            stepNodeIndex={this.props.stepNodeIndex}
+                                            setPreview={this.props.setPreview}
+                                            previewedItem={this.props.previewedItem}
+                                            getModifier={this.props.getModifier}
+                                        />
+                                    ))
+                                }
+                            </div>
+                            {
+                                numNotShown > 0 ?
+                                <ShowMore
+                                    moreLabel={`Similar failures (${numNotShown})`}
+                                    limitKey={this.props.groupKey}
+                                    setLimit={this.props.setLimit}
+                                    nextLimit={limit + MORE_BRANCHES_IN_BRANCH_GRP}
+                                /> :
+                                ''
+                            }
+                        </div>
+                    );
+                }
+            }
+
+            class ShowMore extends React.Component {
+                constructor() {
+                    super();
+                    this.handleClick = this.handleClick.bind(this);
+                }
+
+                handleClick(event) {
+                    this.props.setLimit(this.props.limitKey, this.props.nextLimit);
+                }
+
+                render() {
+                    return (
+                        <span className="show-more" onClick={this.handleClick}>
+                            <div className="label">
+                                {this.props.moreLabel}
+                            </div>
+                        </span>
+                    );
+                }
+            }
+
+            class Branch extends React.Component {
+                constructor() {
+                    super();
+                    this.state = {
+                        hovered: false
+                    };
+
+                    this.me = null; // this element
+
+                    this.hoverStateOn = this.hoverStateOn.bind(this);
+                    this.hoverStateOff = this.hoverStateOff.bind(this);
+                    this.toggleActiveState = this.toggleActiveState.bind(this);
+                    this.updateCollapsing = this.updateCollapsing.bind(this);
+                }
+
+                componentDidMount() {
+                    attachTreePaneTooltips();
+                }
+
+                hoverStateOn() {
+                    this.setState({
+                        hovered: true
+                    });
+                }
+
+                hoverStateOff() {
+                    this.setState({
+                        hovered: false
+                    });
+                }
+
+                toggleActiveState() {
+                    this.props.setPreview(this);
+                }
+
+                /**
+                 * Sets the collapseInit property of the branch
+                 * Sets the collapse, collapseHide, and hasChildren properties of each step
+                 *
+                 * collapseInit = true if collapse properties have been initialized on the steps inside this branch
+                 * collapse = true if this step is currently collapsed, false if uncollapsed, undefined if there's no collapse icon
+                 * collapseHide = true if this step should be hidden because of a collapsed parent
+                 * hasChildren = true if this step has children (that would be hidden if this step were to be collapsed)
+                 */
+                updateCollapsing() {
+                    let branch = this.props.branch;
+
+                    // Set collapseInit, collapse, and hasChildren
+                    if(!branch.collapseInit) {
+                        branch.collapseInit = true;
+                        branch.steps.forEach((step, index) => {
+                            // Set step.collapse
+                            if(this.props.getModifier(step, 'isCollapsed')) {
+                                step.collapse = true;
+
+                                // If a step under this step is currently running or is failed, set this step's collapse = false
+                                for(let i = index + 1; i < branch.steps.length; i++) {
+                                    let s = branch.steps[i];
+                                    if((s.level || 0) <= (step.level || 0)) {
+                                        break;
+                                    }
+
+                                    if(s.isRunning || s.isFailed) {
+                                        step.collapse = false;
+                                        break;
+                                    }
+                                }
+                            }
+
+                            // Set step.hasChildren
+                            for(let i = index + 1; i < branch.steps.length; i++) {
+                                let s = branch.steps[i];
+                                let sn = this.props.stepNodeIndex[s.id];
+
+                                if((s.level || 0) <= (step.level || 0)) {
+                                    break;
+                                }
+                                else if(!this.props.getModifier(s, 'isHidden') &&
+                                    !(this.props.getModifier(s, 'isMultiBlockFunctionCall') && sn.text.trim() == '')) {
+                                    step.hasChildren = true;
+                                    break;
+                                }
+                            }
+                        });
+                    }
+
+                    // Set step.collapseHide
+                    branch.steps.forEach(step => delete step.collapseHide);
+                    branch.steps.forEach((step, index) => {
+                        // If a step has collapse set, collapse all the steps underneath it
+                        if(step.collapse && !step.collapseHide) {
+                            for(let i = index + 1; i < branch.steps.length; i++) {
+                                let s = branch.steps[i];
+                                if((s.level || 0) <= (step.level || 0)) {
+                                    break;
+                                }
+
+                                s.collapseHide = true;
+                            }
+                        }
+                    });
+                }
+
+                render() {
+                    let branch = this.props.branch;
+                    let previewedItem = this.props.previewedItem;
+                    let indicatorClassName = "branch-indicator " + getRunState(branch);
+
+                    let error = "";
+                    if(branch.error) {
+                        error = (
+                            <div className="stacktrace" dangerouslySetInnerHTML={{__html: formatStackTrace(branch.error)}}></div>
+                        );
+                    }
+
+                    let hasLevels = false;
+                    branch.steps.forEach(step => step.level > 0 ? hasLevels = true : null);
+
+                    this.updateCollapsing();
+
+                    let lines = branch.steps
+                        .filter(step => (
+                            !this.props.getModifier(step, 'isHidden') &&
+                            !(this.props.getModifier(step, 'isMultiBlockFunctionCall') && this.props.stepNodeIndex[step.id].text.trim() == '')
+                        ) || step.isFailed)
+                        .map((step, index) =>
+                            step.collapseHide ? '' : // do this here and not in filter() in order to preserve line numbering
+                            <Line
+                                step={step}
+                                stepNode={this.props.stepNodeIndex[step.id]}
+                                branch={branch}
+                                index={index+1}
+                                key={branch.hash + ' ' + step.filename + ' ' + step.lineNumber + ' ' + branch.steps.indexOf(step)}
+                                collapse={step.collapse}
+                                collapseHide={step.collapseHide}
+                                runState={getRunState(step)}
+                                lastIndex={branch.steps.length - 1}
+                                setPreview={this.props.setPreview}
+                                previewedItem={previewedItem}
+                                hasLevels={hasLevels}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                            />
+                        );
+
+                    let branchClassName = "branch ";
+                    if(this.state.hovered) {
+                        branchClassName += "hover ";
+                    }
+                    if(previewedItem === this) {
+                        branchClassName += "active ";
+                    }
+
+                    return (
+                        <div className={branchClassName} ref={elem => this.me = elem}>
+                            <div
+                                className={indicatorClassName}
+                                onMouseOver={this.hoverStateOn}
+                                onMouseOut={this.hoverStateOff}
+                                onClick={this.toggleActiveState}
+                            >
+                            </div>
+                            <div className="branch-contents">
+                                <div className="branch-error">
+                                    {error}
+                                </div>
+                                <div className="steps">
+                                    {lines}
+                                </div>
+                            </div>
+                        </div>
+                    );
+                }
+            }
+
+            class Line extends React.Component {
+                constructor() {
+                    super();
+
+                    this.me = null; // this element
+
+                    this.surroundByVerticalLineContainers = this.surroundByVerticalLineContainers.bind(this);
+                    this.surroundByVerticalLineContainer = this.surroundByVerticalLineContainer.bind(this);
+                    this.toggleActiveState = this.toggleActiveState.bind(this);
+                }
+
+                shouldComponentUpdate(nextProps, nextState) {
+                    return nextProps.previewedItem === this ||
+                        this.props.previewedItem === this ||
+                        nextProps.collapse != this.props.collapse ||
+                        nextProps.collapseHide != this.props.collapseHide ||
+                        nextProps.runState != this.props.runState;
+                }
+
+                surroundByVerticalLineContainers(elem, n) {
+                    !n && (n = 0);
+                    for(let i = 0; i < n; i++) {
+                        elem = this.surroundByVerticalLineContainer(elem);
+                    }
+
+                    return elem;
+                }
+
+                surroundByVerticalLineContainer(elem) {
+                    return (
+                        <span className="vertical-line-container">
+                            {elem}
+                        </span>
+                    );
+                }
+
+                toggleActiveState(e) {
+                    this.props.setPreview(this);
+                }
+
+                render() {
+                    if(!this.props.stepNode) {
+                        return "";
+                    }
+
+                    // Add an &nbsp; in front of the line number depending on the amount of digits in the last step of this branch (so they're all the same length)
+                    let index = this.props.index;
+                    let indexDigits = index.toString().length;
+                    let maxDigits = this.props.lastIndex.toString().length;
+
+                    function getIndexElem(index) {
+                        return <span className="line-index">{indexElemSpaces(indexDigits)}{index}</span>;
+                    }
+
+                    function indexElemSpaces(i) {
+                        if(i < maxDigits) {
+                            return <span>&nbsp;{indexElemSpaces(i+1)}</span>;
+                        }
+                    }
+
+                    let contentClassName = "content ";
+                    let pill = "";
+                    if(this.props.step.isRunning) {
+                        contentClassName += "running running-item";
+                        pill = <span className="pill running">RUNNING</span>;
+                    }
+                    else if(this.props.step.isPassed ||
+                        (!this.props.step.isPassed && !this.props.step.isFailed && !this.props.step.isSkipped && this.props.branch.isPassed) // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                    ) {
+                        contentClassName += "passed-item";
+                    }
+                    else if(this.props.step.isFailed) {
+                        contentClassName += "failed-item";
+                    }
+                    else if(this.props.step.isSkipped) {
+                        contentClassName += "skipped skipped-step-item";
+                    }
+                    else { // not run yet
+                        contentClassName += "notrunyet notrunyet-item";
+                    }
+
+                    let error = "";
+                    if(this.props.step.error) {
+                        error = (
+                            <div className="stacktrace">
+                                {formatErrorMsg(this.props.step.error)}
+                            </div>
+                        );
+                    }
+
+                    let lineClassName = "line ";
+                    if(this.props.previewedItem === this) {
+                        lineClassName += "active ";
+                    }
+
+                    let stepText = this.props.stepNode.text;
+                    if(isTextual(this.props.stepNode)) {
+                        contentClassName += " textual";
+
+                        if(isFrontTextual(this.props.stepNode)) {
+                            contentClassName += " front-textual";
+                        }
+                        if(isBackTextual(this.props.stepNode)) {
+                            contentClassName += " back-textual";
+                        }
+                    }
+                    else if(isNonCodeBlock(this.props.step, this.props.stepNodeIndex)) {
+                        contentClassName += " non-codeblock-step";
+                    }
+
+                    let lineElem = (
+                        <span className="line-container">
+                            <span className={contentClassName}>
+                                <CollapseIcon
+                                    collapse={this.props.collapse}
+                                    hasChildren={this.props.step.hasChildren}
+                                    hasLevels={this.props.hasLevels}
+                                    line={this}
+                                    setPreview={this.props.setPreview}
+                                />
+                                <span className="step-text">
+                                    {stepText}
+                                </span>
+                                {pill}
+                            </span>
+                            <span className="active-indicator">&bull;</span>
+                            {error}
+                        </span>
+                    );
+                    lineElem = this.surroundByVerticalLineContainers(lineElem, this.props.step.level);
+
+                    return (
+                        <div className={lineClassName} onClick={this.toggleActiveState} ref={elem => this.me = elem}>
+                            {getIndexElem(index)}
+                            {lineElem}
+                        </div>
+                    );
+                }
+            }
+
+            class CollapseIcon extends React.Component {
+                constructor() {
+                    super();
+                    this.toggleCollapse = this.toggleCollapse.bind(this);
+                }
+
+                toggleCollapse(e) {
+                    e.stopPropagation();
+                    this.props.setPreview(this.props.line, true, true);
+                }
+
+                render() {
+                    let plusElem = <img
+                        className="collapse plus"
+                        onClick={this.toggleCollapse}
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgaGVpZ2h0PSIxNzkyIiB2aWV3Qm94PSIwIDAgMTc5MiAxNzkyIiB3aWR0aD0iMTc5MiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cGF0aCBkPSJNMTM0NCA4MDB2NjRxMCAxNC05IDIzdC0yMyA5aC0zNTJ2MzUycTAgMTQtOSAyM3QtMjMgOWgtNjRxLTE0IDAtMjMtOXQtOS0yM3YtMzUyaC0zNTJxLTE0IDAtMjMtOXQtOS0yM3YtNjRxMC0xNCA5LTIzdDIzLTloMzUydi0zNTJxMC0xNCA5LTIzdDIzLTloNjRxMTQgMCAyMyA5dDkgMjN2MzUyaDM1MnExNCAwIDIzIDl0OSAyM3ptMTI4IDQ0OHYtODMycTAtNjYtNDctMTEzdC0xMTMtNDdoLTgzMnEtNjYgMC0xMTMgNDd0LTQ3IDExM3Y4MzJxMCA2NiA0NyAxMTN0MTEzIDQ3aDgzMnE2NiAwIDExMy00N3Q0Ny0xMTN6bTEyOC04MzJ2ODMycTAgMTE5LTg0LjUgMjAzLjV0LTIwMy41IDg0LjVoLTgzMnEtMTE5IDAtMjAzLjUtODQuNXQtODQuNS0yMDMuNXYtODMycTAtMTE5IDg0LjUtMjAzLjV0MjAzLjUtODQuNWg4MzJxMTE5IDAgMjAzLjUgODQuNXQ4NC41IDIwMy41eiIvPjwvc3ZnPg=="
+                    />;
+
+                    let minusElem = <img
+                        className="collapse minus"
+                        onClick={this.toggleCollapse}
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48bGluZSB4MT0iOCIgeDI9IjE2IiB5MT0iMTIiIHkyPSIxMiIvPjwvc3ZnPg=="
+                    />;
+
+                    let nonCollapsibleElem = <img
+                        className="collapse noncollapsible"
+                        src="data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiA/PjxzdmcgZmlsbD0ibm9uZSIgaGVpZ2h0PSIyNCIgc3Ryb2tlPSIjMDAwIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS13aWR0aD0iMiIgdmlld0JveD0iMCAwIDI0IDI0IiB3aWR0aD0iMjQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3QgaGVpZ2h0PSIxOCIgcng9IjIiIHJ5PSIyIiB3aWR0aD0iMTgiIHg9IjMiIHk9IjMiLz48L3N2Zz4="
+                    />;
+
+                    let placeholderElem = <span className="collapse-placeholder"/>;
+
+                    if(this.props.hasChildren) {
+                        if(this.props.collapse === true) {
+                            return plusElem;
+                        }
+                        else {
+                            return minusElem;
+                        }
+                    }
+                    else {
+                        if(this.props.hasLevels) {
+                            return placeholderElem;
+                        }
+                        else {
+                            return "";
+                        }
+                    }
+                }
+            }
+
+            class PreviewPane extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                componentDidUpdate() {
+                    attachPreviewPaneTooltips();
+                }
+
+                render() {
+                    if(this.props.previewedItem) {
+                        return (
+                            <Preview
+                                previewedItem={this.props.previewedItem}
+                                setPreview={this.props.setPreview}
+                                stepNodeIndex={this.props.stepNodeIndex}
+                                triggers={this.props.triggers}
+                            />
+                        );
+                    }
+                    else {
+                        return (
+                            <NoPreview />
+                        );
+                    }
+                }
+            }
+
+            class NoPreview extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    return (
+                        <div className="pane preview-pane hidden">
+                        </div>
+                    );
+                }
+            }
+
+            class Preview extends React.Component {
+                constructor() {
+                    super();
+                    this.handleCloseClick = this.handleCloseClick.bind(this);
+                }
+
+                handleCloseClick() {
+                    this.props.setPreview(null);
+                }
+
+                render() {
+                    let stepObj = this.props.previewedItem.props.step;
+                    let branchObj = this.props.previewedItem.props.branch;
+                    let previewedObj = stepObj || branchObj;
+                    let stepNodeIndex = this.props.stepNodeIndex;
+                    let isBranch = previewedObj.hasOwnProperty("steps");
+                    let sn = stepNodeIndex[previewedObj.id];
+                    let isTextualStep = sn && isTextual(sn);
+                    let isNonCodeBlockStep = sn && isNonCodeBlock(stepObj, this.props.stepNodeIndex);
+
+                    let headerClassName = "header preview-name ";
+                    let previewStateClassName = "status ";
+                    let previewStateText = "";
+                    if(previewedObj.isRunning) {
+                        headerClassName += "running-item-no-anim";
+                        previewStateClassName += "running-item";
+                        previewStateText = "Currently running";
+                    }
+                    else if(previewedObj.isPassed ||
+                        (!previewedObj.isPassed && !previewedObj.isFailed && !previewedObj.isSkipped && this.props.previewedItem.props.branch.isPassed) // if a step is missing isPassed/isFailed/isSkipped, but its branch passed, it is implied that the step passed
+                    ) {
+                        if(isTextualStep) {
+                            const className = "textual";
+                            headerClassName += className;
+                            previewStateClassName += className;
+
+                            previewStateText = "Textual step";
+                        }
+                        else if(isNonCodeBlockStep) {
+                            const className = "non-codeblock-step";
+                            headerClassName += className;
+                            previewStateClassName += className;
+
+                            previewStateText = "Function call";
+                        }
+                        else {
+                            const className = "passed-item";
+                            headerClassName += className;
+                            previewStateClassName += className;
+
+                            previewStateText = "Passed";
+                        }
+                    }
+                    else if(previewedObj.isFailed) {
+                        const className = "failed-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
+
+                        previewStateText = "Failed";
+
+                        if(previewedObj.error && previewedObj.error.continue) {
+                            previewStateText += ", but continued branch";
+                        }
+                    }
+                    else if(previewedObj.isSkipped) {
+                        if(isBranch) {
+                            const className = "skipped-item";
+                            headerClassName += className;
+                            previewStateClassName += className;
+                        }
+                        else {
+                            const className = "skipped-step-item";
+                            headerClassName += className;
+                            previewStateClassName += className;
+                        }
+
+                        previewStateText = "Skipped";
+                    }
+                    else { // Not run yet
+                        const className = "notrunyet-item";
+                        headerClassName += className;
+                        previewStateClassName += className;
+                        previewStateText = "Not run yet";
+                    }
+
+                    let elapsedText = "";
+                    let elapsed = previewedObj.elapsed;
+                    if(typeof elapsed != "undefined" && elapsed != -1) {
+                        elapsedText = `(${formatElapsed(elapsed)})`;
+                    }
+
+                    let className = `pane preview-pane ${isBranch ? "branch-preview" : "step-preview"}`;
+
+                    let previewedItemText = "";
+                    if(isBranch) {
+                        previewedItemText = `Branch ${previewedObj.hash}`;
+                    }
+                    else if(sn) {
+                        previewedItemText = sn.text;
+                    }
+
+                    let postPreviewedItemText = "";
+                    if(isBranch) {
+                        let lastStep = previewedObj.steps[previewedObj.steps.length - 1];
+                        let lastStepNode = stepNodeIndex[lastStep.id];
+                        if(lastStepNode) {
+                            postPreviewedItemText = `[${lastStepNode.filename}:${lastStepNode.lineNumber}] ${elapsedText}`;
+                        }
+                    }
+                    else {
+                        let stepNode = stepNodeIndex[previewedObj.id];
+                        let fdStepNode = previewedObj.fid ? stepNodeIndex[previewedObj.fid] : null;
+                        if(stepNode) {
+                            postPreviewedItemText = `[${stepNode.filename}:${stepNode.lineNumber}${fdStepNode ? ` --> ${fdStepNode.filename}:${fdStepNode.lineNumber}` : ``}] ${elapsedText}`;
+                        }
+                    }
+
+                    return (
+                        <div className={className}>
+                            <div className="close" onClick={this.handleCloseClick}>&#xd7;</div>
+
+                            <div className={headerClassName}>
+                                {previewedItemText}
+                            </div>
+
+                            <div className="preview-state">
+                                <span className={previewStateClassName}>{previewStateText}</span>
+                                <span className="location">{postPreviewedItemText}</span>
+                            </div>
+
+                            <div className="msg">
+                                {
+                                    isBranch ?
+                                    "" :
+                                    <span>Branch {this.props.previewedItem.props.branch.hash} <span className="commandline-hint">Hover here for keystrokes</span></span>
+                                }
+                            </div>
+
+                            <div className="preview-divider">
+                                <div className="msg updates-paused-msg">
+                                    Live updates paused. Close this preview to resume live updates.
+                                </div>
+                            </div>
+
+                            <PreviewError previewedObj={previewedObj}/>
+                            {
+                                !isBranch ?
+                                <PreviewScreenshots
+                                    step={stepObj}
+                                    branch={branchObj}
+                                    triggers={this.props.triggers}
+                                    key={branchObj.hash + ' ' + branchObj.steps.indexOf(stepObj)}
+                                /> :
+                                ''
+                            }
+                            <PreviewLogs previewedObj={previewedObj}/>
+                        </div>
+                    );
+                }
+            }
+
+            class PreviewError extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    if(this.props.previewedObj.error) {
+                        return (
+                            <div className="preview-section preview-error">
+                                <div className="header">Error</div>
+                                <div className="stacktrace" dangerouslySetInnerHTML={{__html: formatStackTrace(this.props.previewedObj.error)}}></div>
+                            </div>
+                        );
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            }
+
+            class PreviewScreenshots extends React.Component {
+                constructor(props) {
+                    super(props);
+
+                    this.baseUrl = `screenshots/${props.branch.hash}_${props.branch.steps.indexOf(props.step)}`;
+                    this.beforeUrl = `${this.baseUrl}_before.jpg`;
+                    this.afterUrl = `${this.baseUrl}_after.jpg`;
+
+                    this.state = {
+                        isBefore: false,
+                        modal: false,
+                        hasBeforeScreenshot: false,
+                        hasAfterScreenshot: false,
+                        screenshotsLoaded: false
+                    };
+
+                    this.props.triggers.onSpacebarDown = () => {
+                        if(this._ismounted && this.state.hasAfterScreenshot) {
+                            this.setState({ isBefore: true });
+                        }
+                    };
+
+                    this.props.triggers.onSpacebarUp = () => {
+                        if(this._ismounted && this.state.hasAfterScreenshot) {
+                            this.setState({ isBefore: false });
+                        }
+                    };
+
+                    this.props.triggers.onEsc = () => {
+                        if(this._ismounted && this.state.modal) {
+                            this.closeModal();
+                            return false; // do not run the default esc action in report
+                        }
+
+                        return true;
+                    };
+
+                    this.toggleBeforeAfter = this.toggleBeforeAfter.bind(this);
+                    this.openModal = this.openModal.bind(this);
+                    this.closeModal = this.closeModal.bind(this);
+                }
+
+                /**
+                 * Toggles between before and after state
+                 */
+                toggleBeforeAfter() {
+                    this.setState({ isBefore: !this.state.isBefore });
+                }
+
+                /**
+                 * Opens the modal
+                 */
+                openModal() {
+                    this.setState({ modal: true });
+                }
+
+                /**
+                 * Closes the modal
+                 */
+                closeModal() {
+                    this.setState({ modal: false });
+                }
+
+                componentDidMount() {
+                    this._ismounted = true;
+
+                    Promise.all([
+                        imageExists(this.beforeUrl),
+                        imageExists(this.afterUrl)
+                    ]).then((results) => {
+                        this.setState({
+                            hasBeforeScreenshot: results[0],
+                            hasAfterScreenshot: results[1],
+                            screenshotsLoaded: true
+                        });
+                    });
+                }
+
+                componentWillUnmount() {
+                    this._ismounted = false;
+                }
+
+                render() {
+                    if(!this.state.screenshotsLoaded) { // prevents flicker when arrowing through steps
+                        return previewSSRender;
+                    }
+
+                    let isBefore = this.state.isBefore || !this.state.hasAfterScreenshot;
+                    let url = isBefore ? this.beforeUrl : this.afterUrl;
+
+                    let targetCoords = this.props.step.targetCoords;
+                    let crosshairsStyle = '';
+                    if(targetCoords) {
+                        if(targetCoords.y <= 100 && targetCoords.x <= 100) {
+                            crosshairsStyle = { top: `${targetCoords.y}%`, left: `${targetCoords.x}%` };
+                        }
+                        else {
+                            targetCoords = null; // crosshairs are out of bounds
+                        }
+                    }
+
+                    let toggleClassName = `screenshot-toggle ${isBefore ? `active` : ``}`;
+
+                    if(this.state.hasBeforeScreenshot) {
+                        previewSSRender = (
+                            <div className="preview-section preview-screenshots">
+                                <div className="header">Screenshots</div>
+                                <div className="step-screenshots">
+                                    <div className="screenshot-preview-container">
+                                        {
+                                            this.state.hasAfterScreenshot ?
+                                            <div className="screenshot-container">
+                                                <div className={toggleClassName} onClick={this.toggleBeforeAfter}>
+                                                    <span className="text">
+                                                        Show Before
+                                                    </span>
+                                                </div>
+                                            </div> :
+                                            ''
+                                        }
+                                        <div className="screenshot-container">
+                                            {
+                                                targetCoords && isBefore ?
+                                                <div className="crosshairs-container">
+                                                    <div className="crosshairs" style={crosshairsStyle}>
+                                                        <div className="vertical"></div>
+                                                        <div className="horizontal"></div>
+                                                    </div>
+                                                </div> :
+                                                ''
+                                            }
+                                            <img className="screenshot active" src={url} onClick={this.openModal}/>
+                                        </div>
+                                    </div>
+                                    {
+                                        this.state.modal ?
+                                        <div className="screenshot-modal" onClick={this.closeModal}>
+                                            <img className="image" src={url}/>
+                                        </div> :
+                                        ''
+                                    }
+                                </div>
+                            </div>
+                        );
+                    }
+                    else {
+                        previewSSRender = "";
+                    }
+
+                    return previewSSRender;
+                }
+            }
+
+            class PreviewLogs extends React.Component {
+                constructor() {
+                    super();
+                }
+
+                render() {
+                    let logs = this.props.previewedObj.log;
+                    if(logs) {
+                        logs = logs.map((logItem, index) => <div className="log-line" key={index}>{logItem.text}</div>);
+
+                        return (
+                            <div className="preview-section preview-logs">
+                                <div className="header">Logs</div>
+                                <div className="logs">
+                                    {logs}
+                                </div>
+                            </div>
+                        );
+                    }
+                    else {
+                        return '';
+                    }
+                }
+            }
+
+            ReactDOM.render(
+                <App />,
+                document.getElementById("root")
+            );
+
+            /**
+             * Converts a number of ms to Xh Xm Xs Xms format
+             */
+            function formatElapsed(ms) {
+                let hours = Math.floor(ms/3600000);
+                ms %= 3600000;
+                let mins = Math.floor(ms/60000);
+                ms %= 60000;
+                let secs = Math.floor(ms/1000);
+                ms %= 1000;
+
+                return (hours > 0 ? hours + "h " : "") +
+                    (hours > 0 || mins > 0 ? mins + "m " : "") +
+                    (hours > 0 || mins > 0 || secs > 0 ? secs + "s" : "") +
+                    (hours == 0 && mins == 0 && secs == 0 ? ms + "ms" : "");
+            }
+
+            /**
+             * Formats the given Error's stack trace (including injecting [filename:lineNumber] and formatting -->'s) and returns it
+             */
+            function formatStackTrace(error) {
+                return error.stack
+                    .replace(/\&/g, '&amp;')
+                    .replace(/\</g, '&lt;')
+                    .replace(/\>/g, '&gt;')
+                    .replace(/\n/, `   [${error.filename}:${error.lineNumber}]\n`)
+                    .replace(/\u001b\[0m\u001b\[31m/g, `<span class='red'>`)
+                    .replace(/\u001b\[0m\u001b\[30m/g, `</span>`);
+            }
+
+            /**
+             * Formats the given Error's message (including injecting [filename:lineNumber]) and returns it
+             */
+            function formatErrorMsg(error) {
+                let matches = error.message.match(/.*/);
+                if(matches === null) {
+                    return '';
+                }
+
+                let errorMsg = matches[0].trim();
+                if(errorMsg != '') {
+                    errorMsg += '   ';
+                }
+                errorMsg += `[${error.filename}:${error.lineNumber}]`;
+
+                return errorMsg;
+            }
+
+            /**
+             * @return {Boolean} True if elem is in view, false otherwise
+             */
+            function isScrolledIntoView(elem) {
+                var rect = elem.getBoundingClientRect();
+                return (rect.top >= 0) && (rect.bottom <= window.innerHeight);
+            }
+
+            /**
+             * Scrolls elem into view if it's not in view
+             */
+            function scrollIntoView(elem) {
+                if(!isScrolledIntoView(elem)) {
+                    elem.scrollIntoView({
+                        block: 'nearest'
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>
