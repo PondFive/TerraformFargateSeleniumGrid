@@ -14,24 +14,28 @@
         "command": [
             "/bin/bash",
             "-c",
-            "PRIVATE=$(curl -s $ECS_CONTAINER_METADATA_URI_V4/task | jq -r '.Containers[0].Networks[0].IPv4Addresses[0]') ; export REMOTE_HOST=\"http://$PRIVATE:5555\" ; /opt/bin/entry_point.sh"
+            "PRIVATE=$(curl -s $ECS_CONTAINER_METADATA_URI_V4/task | jq -r '.Containers[0].Networks[0].IPv4Addresses[0]') ; export SE_NODE_HOST=\"$PRIVATE\" ; /opt/bin/entry_point.sh"
         ],
         "environment": [
             {
-                "name": "HUB_HOST",
+                "name": "SE_EVENT_BUS_HOST",
                 "value": "hub.${app_name}"
             },
             {
-                "name": "HUB_PORT",
-                "value": "4444"
+                "name": "SE_EVENT_BUS_PUBLISH_PORT",
+                "value": "4442"
             },
             {
-                "name": "NODE_MAX_SESSION",
-                "value": "6"
+                "name": "SE_EVENT_BUS_SUBSCRIBE_PORT",
+                "value": "4443"
             },
             {
-                "name": "NODE_MAX_INSTANCES",
+                "name": "SE_NODE_MAX_SESSIONS",
                 "value": "6"
+            },
+            {   
+                "name": "SE_NODE_OVERRIDE_MAX_SESSIONS",
+                "value": "true"
             },
             {
                 "name": "SCREEN_HEIGHT",

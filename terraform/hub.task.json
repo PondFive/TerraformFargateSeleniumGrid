@@ -4,9 +4,19 @@
         "image": "${image}", 
         "portMappings": [
             {
-            "hostPort": 4444,
-            "protocol": "tcp",
-            "containerPort": 4444
+                "hostPort": 4442,
+                "protocol": "tcp",
+                "containerPort": 4442
+            },
+            {
+                "hostPort": 4443,
+                "protocol": "tcp",
+                "containerPort": 4443
+            },
+            {
+                "hostPort": 4444,
+                "protocol": "tcp",
+                "containerPort": 4444
             }
         ], 
         "essential": true, 
