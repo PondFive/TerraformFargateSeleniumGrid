@@ -48,16 +48,54 @@ resource "aws_security_group" "elb" {
   }
 }
 
-resource "aws_security_group" "hub" {
-  name        = "${var.app_name}-hub-sg"
-  description = "Allow access to Hub ports"
+resource "aws_security_group" "hub_web" {
+  name        = "${var.app_name}-hub-web"
+  description = "Allow access to Hub Web"
   vpc_id      = var.vpc_id
   ingress {
     from_port   = 4444
     to_port     = 4444
     protocol    = "tcp"
     cidr_blocks = [data.aws_vpc.selected.cidr_block]
-    description = "Selenium Hub port"
+    description = "Selenium Hub Web"
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "hub_subscribe" {
+  name        = "${var.app_name}-hub-subscribe"
+  description = "Allow access to Hub Subscribe"
+  vpc_id      = var.vpc_id
+  ingress {
+    from_port   = 4443
+    to_port     = 4443
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+    description = "Selenium Hub Subscribe"
+  }
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "hub_publish" {
+  name        = "${var.app_name}-hub-publish"
+  description = "Allow access to Hub Publish"
+  vpc_id      = var.vpc_id
+  ingress {
+    from_port   = 4442
+    to_port     = 4442
+    protocol    = "tcp"
+    cidr_blocks = [data.aws_vpc.selected.cidr_block]
+    description = "Selenium Hub Publish"
   }
   egress {
     from_port       = 0
@@ -175,7 +213,7 @@ resource "aws_ecs_service" "seleniumhub" {
 
   network_configuration {
     subnets          = var.subnet_ids_hub
-    security_groups  = [aws_security_group.hub.id]
+    security_groups  = [aws_security_group.hub_web.id, aws_security_group.hub_subscribe.id, aws_security_group.hub_publish.id]
     assign_public_ip = false
   }
 
